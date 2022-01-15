@@ -1,6 +1,6 @@
 {
   "name": "zxm_spm",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "zxm_spm",
   "main": "index.js",
   "scripts": {

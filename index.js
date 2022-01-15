@@ -77,10 +77,23 @@ class ZxmSpm {
     return uuid;
   }
   getUUID() {
-    var uuid = localStorage.getItem("zxm_spm_uuid");
+    var uuid = "";
+    if (this.isBorwer()) {
+      uuid = localStorage.getItem("zxm_spm_uuid");
+    } else if (this.isWinXinXcx()) {
+      uuid = wx.getStorageSync("zxm_spm_uuid");
+    } else if (this.isAliPayXcx()) {
+      uuid = my.getStorageSync("zxm_spm_uuid");
+    }
     if (!uuid) {
       uuid = this.guid2();
-      localStorage.setItem("zxm_spm_uuid", uuid);
+      if (this.isBorwer()) {
+        localStorage.setItem("zxm_spm_uuid", uuid);
+      } else if (this.isWinXinXcx()) {
+        wx.setStorageSync("zxm_spm_uuid", uuid);
+      } else if (this.isAliPayXcx()) {
+        my.setStorageSync("zxm_spm_uuid", uuid);
+      }
     }
     return uuid;
   }
@@ -90,7 +103,7 @@ class ZxmSpm {
         spm: "",
         uuid: this.getUUID(),
         type: "spm",
-        page: window.location.href,
+        page: this.getHref(),
         log_time: new Date().getTime(),
         log_data: JSON.stringify({}),
       },
@@ -153,12 +166,32 @@ class ZxmSpm {
     return flag;
   }
 
+  getHref() {
+    let txt = "";
+    if (this.isBorwer()) {
+      txt = window.location.href;
+    } else if (this.isWinXinXcx()) {
+      let pages = getCurrentPages();
+      let curPage = pages[pages.length - 1];
+      let page = curPage.route;
+      txt = page;
+    } else if (this.isAliPayXcx()) {
+      let pages = getCurrentPages();
+      let curPage = pages[pages.length - 1];
+      let page = curPage.route;
+      txt = page;
+    } else {
+      txt = "";
+    }
+    return txt;
+  }
+
   sendSpmAliPay(params) {
-    var url = baseUrl + "?p=" + params;
+    var url = this.baseUrl;
     my.request({
       url: url,
-      method: "GET",
-      data: {},
+      method: "POST",
+      data: { p: params },
       header: {
         "content-type": "application/json;charset=UTF-8",
       },
@@ -166,11 +199,11 @@ class ZxmSpm {
   }
 
   sendSpmWeixin(params) {
-    var url = baseUrl + "?p=" + params;
+    var url = this.baseUrl;
     wx.request({
       url: url,
-      method: "GET",
-      data: {},
+      method: "POST",
+      data: { p: params },
       header: {
         "content-type": "application/json;charset=UTF-8",
       },
