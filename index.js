@@ -1,7 +1,7 @@
 var Base64 = {
-  _keyStr: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=',
-  encode: function(input) {
-    var output = '';
+  _keyStr: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
+  encode: function (input) {
+    var output = "";
     var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
     var i = 0;
     input = Base64._utf8_encode(input);
@@ -18,13 +18,18 @@ var Base64 = {
       } else if (isNaN(chr3)) {
         enc4 = 64;
       }
-      output = output + this._keyStr.charAt(enc1) + this._keyStr.charAt(enc2) + this._keyStr.charAt(enc3) + this._keyStr.charAt(enc4);
+      output =
+        output +
+        this._keyStr.charAt(enc1) +
+        this._keyStr.charAt(enc2) +
+        this._keyStr.charAt(enc3) +
+        this._keyStr.charAt(enc4);
     }
     return output;
   },
-  _utf8_encode: function(string) {
-    string = string.replace(/\r\n/g, '\n');
-    var utftext = '';
+  _utf8_encode: function (string) {
+    string = string.replace(/\r\n/g, "\n");
+    var utftext = "";
     for (var n = 0; n < string.length; n++) {
       var c = string.charCodeAt(n);
       if (c < 128) {
@@ -39,13 +44,13 @@ var Base64 = {
       }
     }
     return utftext;
-  }
+  },
 };
 
 class ZxmSpm {
   constructor() {
-    this.env = 'dev';
-    this.baseUrl = 'https://p.abczzz.cn/spm/spm';
+    this.env = "dev";
+    this.baseUrl = "https://p.abczzz.cn/spm/spm";
   }
 
   setEnv(env) {
@@ -57,93 +62,175 @@ class ZxmSpm {
   }
 
   test() {
-    console.log('test1 111');
+    console.log("test1 111");
   }
   guid2() {
     var s = [];
-    var hexDigits = '0123456789abcdef';
+    var hexDigits = "0123456789abcdef";
     for (var i = 0; i < 36; i++) {
       s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1);
     }
-    s[14] = '4';
+    s[14] = "4";
     s[19] = hexDigits.substr((s[19] & 0x3) | 0x8, 1);
-    s[8] = s[13] = s[18] = s[23] = '-';
-    var uuid = s.join('');
+    s[8] = s[13] = s[18] = s[23] = "-";
+    var uuid = s.join("");
     return uuid;
   }
   getUUID() {
-    var uuid = localStorage.getItem('zxm_spm_uuid');
+    var uuid = localStorage.getItem("zxm_spm_uuid");
     if (!uuid) {
       uuid = this.guid2();
-      localStorage.setItem('zxm_spm_uuid', uuid);
+      localStorage.setItem("zxm_spm_uuid", uuid);
     }
     return uuid;
   }
   encodeParams(type, spm, log_data) {
     var spmData = Object.assign(
       {
-        spm: '',
+        spm: "",
         uuid: this.getUUID(),
-        type: 'spm',
+        type: "spm",
         page: window.location.href,
         log_time: new Date().getTime(),
-        log_data: JSON.stringify({})
+        log_data: JSON.stringify({}),
       },
       {
         spm: spm,
         type: type,
-        log_data: JSON.stringify(log_data)
+        log_data: JSON.stringify(log_data),
       }
     );
     var params = Base64.encode(encodeURIComponent(JSON.stringify(spmData)))
-      .split('')
+      .split("")
       .reverse()
-      .join('');
-    if (this.env === 'dev') {
-      console.log('打点数据', JSON.stringify(spmData, null, 1));
-      console.log('编码后参数', params);
+      .join("");
+    if (this.env === "dev") {
+      console.log("打点数据", JSON.stringify(spmData, null, 1));
+      console.log("编码后参数", params);
     }
     return params;
   }
 
-  sendSpm(params) {
+  isWinXinXcx() {
+    let flag = false;
+    try {
+      if (wx && wx.request) {
+        flag = true;
+      }
+    } catch (error) {}
+    return flag;
+  }
+
+  isAliPayXcx() {
+    let flag = false;
+    try {
+      if (my && my.request) {
+        flag = true;
+      }
+    } catch (error) {}
+    return flag;
+  }
+
+  isBorwer() {
+    let flag = false;
+    if (
+      typeof XMLHttpRequest != "undefined" &&
+      Object.prototype.toString.call(XMLHttpRequest) == "[object Function]"
+    ) {
+      flag = true;
+    }
+    return flag;
+  }
+
+  isNode() {
+    let flag = false;
+    if (
+      typeof process != "undefined" &&
+      Object.prototype.toString.call(process) === "[object process]"
+    ) {
+      flag = true;
+    }
+    return flag;
+  }
+
+  sendSpmAliPay(params) {
+    var url = baseUrl + "?p=" + params;
+    my.request({
+      url: url,
+      method: "GET",
+      data: {},
+      header: {
+        "content-type": "application/json;charset=UTF-8",
+      },
+    });
+  }
+
+  sendSpmWeixin(params) {
+    var url = baseUrl + "?p=" + params;
+    wx.request({
+      url: url,
+      method: "GET",
+      data: {},
+      header: {
+        "content-type": "application/json;charset=UTF-8",
+      },
+    });
+  }
+
+  sendSpmBrower(params) {
     var tmpBlob = new Blob([params]);
     if (tmpBlob.size <= 4096) {
-      var url = this.baseUrl + '?p=' + params;
-      var img = document.createElement('img');
-      img.style.display = 'none';
+      var url = this.baseUrl + "?p=" + params;
+      var img = document.createElement("img");
+      img.style.display = "none";
       img.src = url;
       document.body.appendChild(img);
       document.body.removeChild(img);
     } else {
       var xhr = new XMLHttpRequest();
-      xhr.open('POST', this.baseUrl);
-      xhr.setRequestHeader('Content-type', 'application/json');
+      xhr.open("POST", this.baseUrl);
+      xhr.setRequestHeader("Content-type", "application/json");
       xhr.send(
         JSON.stringify({
-          p: params
+          p: params,
         })
       );
     }
   }
+
+  sendSpm(params) {
+    if (this.isBorwer()) {
+      this.sendSpmBrower(params);
+    } else if (this.isWinXinXcx()) {
+      this.sendSpmWeixin(params);
+    } else if (this.isAliPayXcx()) {
+      this.sendSpmAliPay(params);
+    } else {
+      console.log("未知环境");
+    }
+  }
   spm(spm, log_data, type) {
     if (!spm) return;
-    if (spm.split('.').lengtn == 1) return;
-    var typeArr = ['spm', 'log', 'err'];
-    var params = this.encodeParams(typeArr.indexOf(type) != -1 ? type : 'spm', spm, log_data);
+    if (spm.split(".").lengtn == 1) return;
+    var typeArr = ["spm", "log", "err"];
+    var params = this.encodeParams(
+      typeArr.indexOf(type) != -1 ? type : "spm",
+      spm,
+      log_data
+    );
     this.sendSpm(params);
   }
   spmErr(spm, log_data) {
     if (!spm) return;
-    if (spm.split('.').lengtn == 1) return;
-    var params = this.encodeParams('err', spm, log_data);
+    if (spm.split(".").lengtn == 1) return;
+    var params = this.encodeParams("err", spm, log_data);
     this.sendSpm(params);
   }
 
   spmLog(spm, log_data) {
     if (!spm) return;
-    if (spm.split('.').lengtn == 1) return;
-    var params = this.encodeParams('log', spm, log_data);
+    if (spm.split(".").lengtn == 1) return;
+    var params = this.encodeParams("log", spm, log_data);
     this.sendSpm(params);
   }
 }
