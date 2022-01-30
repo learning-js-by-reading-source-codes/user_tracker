@@ -119,7 +119,7 @@ class ZxmSpm {
       .join("");
     if (this.env === "dev") {
       console.log("打点数据", JSON.stringify(spmData, null, 1));
-      console.log("编码后参数", params);
+      // console.log("编码后参数", params);
     }
     return params;
   }
@@ -232,15 +232,17 @@ class ZxmSpm {
   }
 
   sendSpm(params) {
-    if (this.isBorwer()) {
-      this.sendSpmBrower(params);
-    } else if (this.isWinXinXcx()) {
-      this.sendSpmWeixin(params);
-    } else if (this.isAliPayXcx()) {
-      this.sendSpmAliPay(params);
-    } else {
-      console.log("未知环境");
-    }
+    setTimeout(() => {
+      if (this.isBorwer()) {
+        this.sendSpmBrower(params);
+      } else if (this.isWinXinXcx()) {
+        this.sendSpmWeixin(params);
+      } else if (this.isAliPayXcx()) {
+        this.sendSpmAliPay(params);
+      } else {
+        console.log("未知环境");
+      }
+    }, 0);
   }
   spm(spm, log_data, type) {
     if (!spm) return;
