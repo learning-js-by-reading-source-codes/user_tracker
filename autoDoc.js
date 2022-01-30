@@ -1,10 +1,10 @@
 let fs = require("fs");
 let documentation = require("documentation");
 let cline = "```";
-let tp = `# 
-##### 
-##### 
-##### 
+let tp = `# 打点上报 spm 工具库
+
+为了满足工作中的埋点需求，封装的一个工具库
+
 
 > 安装依赖
 
