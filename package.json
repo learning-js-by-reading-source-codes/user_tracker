@@ -1,14 +1,27 @@
 {
-  "name": "zxm_spm",
-  "version": "1.0.2",
-  "description": "zxm_spm",
-  "main": "index.js",
+  "name": "zxm-spm",
+  "version": "1.0.0",
+  "description": "zxm-spm",
+  "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "rollup -c",
+    "build": "rollup -c",
+    "doc": "node autoDoc.js"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.16.12",
+    "@babel/preset-env": "^7.16.11",
+    "babel-plugin-external-helpers": "^6.22.0",
+    "documentation": "^13.2.5",
+    "rollup": "^2.66.1",
+    "rollup-plugin-babel": "^4.4.0",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-terser": "^7.0.2"
   },
   "keywords": [
-    "zxm_spm"
+    "zxm-spm"
   ],
   "author": "zhoujie16",
-  "license": "ISC"
+  "license": "MIT"
 }
