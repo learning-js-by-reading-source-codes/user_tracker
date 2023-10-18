@@ -80,25 +80,28 @@ class ZxmSpm {
     }
     return params;
   }
-
-  isWinXinXcx() {
+  
+  isXCX(type = 'wx') {
     let flag = false;
     try {
-      if (wx && wx.request) {
+      if (type === 'wx' && window?.wx?.request) {
         flag = true;
       }
-    } catch (error) {}
+      if (type === 'my' && window?.my?.request) {
+        flag = true;
+      }
+    } catch (error) {
+      console.error(`${type}XCX check error: `, error);
+    }
     return flag;
+  }
+  
+  isWinXinXcx() {
+    return this.isXCX('wx');
   }
 
   isAliPayXcx() {
-    let flag = false;
-    try {
-      if (my && my.request) {
-        flag = true;
-      }
-    } catch (error) {}
-    return flag;
+    return this.isXCX('my');
   }
 
   isBorwer() {
@@ -142,29 +145,26 @@ class ZxmSpm {
     }
     return txt;
   }
-
-  sendSpmAliPay(params) {
-    var url = this.baseUrl;
-    my.request({
-      url: url,
+  getSpmXCXOptions(params) {
+    const options = {
+      url: this.baseUrl,
       method: "POST",
       data: { p: params },
       header: {
         "content-type": "application/json;charset=UTF-8",
       },
-    });
+    };
+    return options;
+  }
+
+  sendSpmAliPay(params) {
+    const opthions = this.getSpmXCXOptions(params);
+    my.request(opthions);
   }
 
   sendSpmWeixin(params) {
-    var url = this.baseUrl;
-    wx.request({
-      url: url,
-      method: "POST",
-      data: { p: params },
-      header: {
-        "content-type": "application/json;charset=UTF-8",
-      },
-    });
+    const opthions = this.getSpmXCXOptions(params);
+    wx.request(opthions);
   }
 
   sendSpmBrower(params) {
